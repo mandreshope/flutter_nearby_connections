@@ -1,25 +1,27 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_nearby_connections/flutter_nearby_connections.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case '/':
-      return MaterialPageRoute(builder: (_) => Home());
+      return MaterialPageRoute(builder: (_) => const Home());
     case 'browser':
       return MaterialPageRoute(
-          builder: (_) => DevicesListScreen(deviceType: DeviceType.browser));
+          builder: (_) =>
+              const DevicesListScreen(deviceType: DeviceType.browser));
     case 'advertiser':
       return MaterialPageRoute(
-          builder: (_) => DevicesListScreen(deviceType: DeviceType.advertiser));
+          builder: (_) =>
+              const DevicesListScreen(deviceType: DeviceType.advertiser));
     default:
       return MaterialPageRoute(
           builder: (_) => Scaffold(
@@ -30,9 +32,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       onGenerateRoute: generateRoute,
       initialRoute: '/',
     );
@@ -40,6 +44,8 @@ class MyApp extends StatelessWidget {
 }
 
 class Home extends StatelessWidget {
+  const Home({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +58,7 @@ class Home extends StatelessWidget {
               },
               child: Container(
                 color: Colors.red,
-                child: Center(
+                child: const Center(
                     child: Text(
                   'BROWSER',
                   style: TextStyle(color: Colors.white, fontSize: 40),
@@ -67,7 +73,7 @@ class Home extends StatelessWidget {
               },
               child: Container(
                 color: Colors.green,
-                child: Center(
+                child: const Center(
                     child: Text(
                   'ADVERTISER',
                   style: TextStyle(color: Colors.white, fontSize: 40),
@@ -84,12 +90,12 @@ class Home extends StatelessWidget {
 enum DeviceType { advertiser, browser }
 
 class DevicesListScreen extends StatefulWidget {
-  const DevicesListScreen({required this.deviceType});
+  const DevicesListScreen({super.key, required this.deviceType});
 
   final DeviceType deviceType;
 
   @override
-  _DevicesListScreenState createState() => _DevicesListScreenState();
+  State<DevicesListScreen> createState() => _DevicesListScreenState();
 }
 
 class _DevicesListScreenState extends State<DevicesListScreen> {
@@ -130,7 +136,7 @@ class _DevicesListScreenState extends State<DevicesListScreen> {
                   ? connectedDevices[index]
                   : devices[index];
               return Container(
-                margin: EdgeInsets.all(8.0),
+                margin: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
                     Row(
@@ -139,6 +145,7 @@ class _DevicesListScreenState extends State<DevicesListScreen> {
                             child: GestureDetector(
                           onTap: () => _onTabItemListener(device),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(device.deviceName),
                               Text(
@@ -147,22 +154,21 @@ class _DevicesListScreenState extends State<DevicesListScreen> {
                                     color: getStateColor(device.state)),
                               ),
                             ],
-                            crossAxisAlignment: CrossAxisAlignment.start,
                           ),
                         )),
                         // Request connect
                         GestureDetector(
                           onTap: () => _onButtonClicked(device),
                           child: Container(
-                            margin: EdgeInsets.symmetric(horizontal: 8.0),
-                            padding: EdgeInsets.all(8.0),
+                            margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                            padding: const EdgeInsets.all(8.0),
                             height: 35,
                             width: 100,
                             color: getButtonColor(device.state),
                             child: Center(
                               child: Text(
                                 getButtonStateName(device.state),
-                                style: TextStyle(
+                                style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold),
                               ),
@@ -171,10 +177,10 @@ class _DevicesListScreenState extends State<DevicesListScreen> {
                         )
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 8.0,
                     ),
-                    Divider(
+                    const Divider(
                       height: 1,
                       color: Colors.grey,
                     )
@@ -233,17 +239,17 @@ class _DevicesListScreenState extends State<DevicesListScreen> {
           builder: (BuildContext context) {
             final myController = TextEditingController();
             return AlertDialog(
-              title: Text("Send message"),
+              title: const Text("Send message"),
               content: TextField(controller: myController),
               actions: [
                 TextButton(
-                  child: Text("Cancel"),
+                  child: const Text("Cancel"),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
                 ),
                 TextButton(
-                  child: Text("Send"),
+                  child: const Text("Send"),
                   onPressed: () {
                     nearbyService.sendMessage(
                         device.deviceId, myController.text);
@@ -299,14 +305,13 @@ class _DevicesListScreenState extends State<DevicesListScreen> {
         callback: (isRunning) async {
           if (isRunning) {
             if (widget.deviceType == DeviceType.browser) {
-
               await nearbyService.stopBrowsingForPeers();
-              await Future.delayed(Duration(microseconds: 200));
+              await Future.delayed(const Duration(microseconds: 200));
               await nearbyService.startBrowsingForPeers();
             } else {
               await nearbyService.stopAdvertisingPeer();
               await nearbyService.stopBrowsingForPeers();
-              await Future.delayed(Duration(microseconds: 200));
+              await Future.delayed(const Duration(microseconds: 200));
               await nearbyService.startAdvertisingPeer();
               await nearbyService.startBrowsingForPeers();
             }
@@ -314,8 +319,8 @@ class _DevicesListScreenState extends State<DevicesListScreen> {
         });
     subscription =
         nearbyService.stateChangedSubscription(callback: (devicesList) {
-      devicesList.forEach((element) {
-        print(
+      for (var element in devicesList) {
+        debugPrint(
             " deviceId: ${element.deviceId} | deviceName: ${element.deviceName} | state: ${element.state}");
 
         if (Platform.isAndroid) {
@@ -325,7 +330,7 @@ class _DevicesListScreenState extends State<DevicesListScreen> {
             nearbyService.startBrowsingForPeers();
           }
         }
-      });
+      }
 
       setState(() {
         devices.clear();
@@ -339,7 +344,7 @@ class _DevicesListScreenState extends State<DevicesListScreen> {
 
     receivedDataSubscription =
         nearbyService.dataReceivedSubscription(callback: (data) {
-      print("dataReceivedSubscription: ${jsonEncode(data)}");
+      debugPrint("dataReceivedSubscription: ${jsonEncode(data)}");
       showToast(jsonEncode(data),
           context: context,
           axis: Axis.horizontal,
